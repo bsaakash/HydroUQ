@@ -59,8 +59,7 @@ CoupledDigitalTwin::CoupledDigitalTwin(QWidget *parent)
     QWidget     *mainGroup = new QWidget();
     QGridLayout *mainLayout = new QGridLayout();
 
-    QLabel *generalDescriptionLabel = new QLabel("Coupled Digital twin simulation of structures within NHERI experimental facilities.: "
-                                                 "\n --> Steps Involved: "
+    QLabel *generalDescriptionLabel = new QLabel("Coupled Digital Twin Simulation of Structures within NHERI Experimental Facilities.: "
                                                  "\n --> Specify Simulation Settings "						 
                                                  "\n --> Define OpenSeesPy Model "
                                                  "\n --> Specify OpenFOAM Model and specify initial conditions. "
@@ -161,8 +160,8 @@ bool CoupledDigitalTwin::outputToJSON(QJsonObject &jsonObject)
 bool CoupledDigitalTwin::outputAppDataToJSON(QJsonObject &jsonObject) {
 
     //
-    // per API, need to add name of application to be called in AppLication
-    // and all data to be used in ApplicationDate
+    // per API, need to add name of application to be called in Application
+    // and all data to be used in ApplicationData
     //
 
     jsonObject["EventClassification"]="Hydro";
@@ -180,6 +179,8 @@ bool CoupledDigitalTwin::inputAppDataFromJSON(QJsonObject &jsonObject) {
 
 
 bool CoupledDigitalTwin::copyFiles(QString &destDir) {
-     return true;
+  if (inputOpenFOAM->copyFiles(destDir) == false)
+    return false;
+  return inputOpenSees->copyFiles(destDir);
  }
 

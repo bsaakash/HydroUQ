@@ -80,12 +80,18 @@ SettingsDigitalTwin::SettingsDigitalTwin(QWidget *parent)
   
   foamSettingsLayout->addWidget(new QLabel("Adjust Timestep"), 0, 0);
   foamSettingsLayout->addWidget(new QLabel("Turbulence"), 1, 0);
+  foamSettingsLayout->addWidget(new QLabel("Number of Processsors"), 2, 0);
+  foamSettingsLayout->addWidget(new QLabel("Start Event Recording Time"), 3, 0);    
   
   adjustTimestep = new SC_ComboBox("AdjustTimeStep", yesNo);
   turbulance = new SC_ComboBox("Turbulence", yesNo);
+  numProcessors = new SC_IntLineEdit("numProcessors", 32);
+  startEvent = new SC_DoubleLineEdit("start",0.0);
   
   foamSettingsLayout->addWidget(adjustTimestep, 0, 1);
-  foamSettingsLayout->addWidget(turbulance, 1, 1);  
+  foamSettingsLayout->addWidget(turbulance, 1, 1);
+  foamSettingsLayout->addWidget(numProcessors, 2, 1);
+  foamSettingsLayout->addWidget(startEvent, 3, 1);  
 
   gravZ = new SC_DoubleLineEdit("g", -9.81);
 
@@ -105,7 +111,7 @@ SettingsDigitalTwin::SettingsDigitalTwin(QWidget *parent)
   QStringList couplingList; couplingList << "Implicit" << "Explicit";
   couplingScheme = new SC_ComboBox("CouplingScheme", couplingList);
 
-  QStringList couplingMethod; couplingMethod << "Constant" << "Aitken" << "IQN-IMVJ" << "Broyden";  
+  QStringList couplingMethod; couplingMethod << "Constant" << "Aitken" << "IQN-ILS" << "IQN-IMVJ" << "Broyden";  
   couplingDataMethod = new SC_ComboBox("couplingDataAccelerationMethod", couplingMethod);
   
   initialRelaxationFactor = new SC_DoubleLineEdit("initialRelaxationFactor", 0.6);
@@ -140,6 +146,8 @@ SettingsDigitalTwin::~SettingsDigitalTwin()
 bool
 SettingsDigitalTwin::outputToJSON(QJsonObject &jsonObject)
 {
+  numProcessors->outputToJSON(jsonObject);
+  startEvent->outputToJSON(jsonObject);
   timeStep->outputToJSON(jsonObject);
   simulationLength->outputToJSON(jsonObject);
   preloadStructure->outputToJSON(jsonObject);
@@ -165,7 +173,8 @@ SettingsDigitalTwin::outputToJSON(QJsonObject &jsonObject)
 bool
 SettingsDigitalTwin::inputFromJSON(QJsonObject &jsonObject)
 {
-
+  numProcessors->inputFromJSON(jsonObject);
+  startEvent->inputFromJSON(jsonObject);
   timeStep->inputFromJSON(jsonObject);
   simulationLength->inputFromJSON(jsonObject);
   preloadStructure->inputFromJSON(jsonObject);
