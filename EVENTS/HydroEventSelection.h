@@ -85,6 +85,7 @@ public:
     bool inputAppDataFromJSON(QJsonObject &rvObject);
     bool copyFiles(QString &destName);
     bool supportsLocalRun() override;
+    bool outputCitation(QJsonObject &jsonObject) override;  
 
 signals:
     void statusMessage(QString message);
@@ -109,6 +110,7 @@ private:
    SimCenterAppWidget *theCoupledDigitalTwin;
    SimCenterAppWidget *theMPM;    
    SimCenterAppWidget *theSPH;
+   SimCenterAppWidget *theSimpleWaves;
    SimCenterAppWidget *theExistingEvents;
 
    RandomVariablesContainer *theRandomVariablesContainer;

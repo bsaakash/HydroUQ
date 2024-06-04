@@ -13,7 +13,7 @@
 #include <AgaveCurl.h>
 #include <WorkflowAppHydroUQ.h>
 
-#include <QCoreApplication>
+// #include <QCoreApplication>
 
 
 #include <QTime>
@@ -22,11 +22,16 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <SimCenterPreferences.h>
+
 #include <QWebEngineView>
 #include <QStatusBar>
 #include <QSvgWidget>
 // #include <QOpenGLWidget>
+#include <QtWebEngine>
 
+//#include <QtGlobal> // for for Q_OS_WIN, etc.
+#include <stdlib.h>
+//#include <QSurfaceFormat>
 
 #ifdef ENDLN
 #undef ENDLN
@@ -74,18 +79,41 @@ void customMessageOutput(QtMsgType type, const QMessageLogContext &context, cons
 
 int main(int argc, char *argv[])
 {
+// #ifdef Q_OS_MACOS
+    // QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+
+    // code to reset openGL version .. keep around in case need again
+    QSurfaceFormat glFormat;
+    // glFormat.setVersion(3, 3);
+    glFormat.setProfile(QSurfaceFormat::CompatibilityProfile);
+    QSurfaceFormat::setDefaultFormat(glFormat);
+
+// #endif
+    // QApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+    QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+    // QApplication::setAttribute(Qt::AA_UseSoftwareOpenGL);
+    // QApplication::setAttribute(Qt::AA_UseOpenGLES);
+
+    
+// #endif
 
 #ifdef Q_OS_WIN
     QApplication::setAttribute(Qt::AA_UseOpenGLES);
+    // QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
 #endif
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+
+
 
     //Setting Core Application Name, Organization, and Version
     QCoreApplication::setApplicationName("HydroUQ");
     QCoreApplication::setOrganizationName("SimCenter");
-    QCoreApplication::setApplicationVersion("3.1.0");
+    QCoreApplication::setApplicationVersion("3.2.0");
 
     //Init resources from static libraries (e.g. SimCenterCommonQt or s3hark)
+    Q_INIT_RESOURCE(images);
     Q_INIT_RESOURCE(images1);
+    
     // Q_INIT_RESOURCE(Resources);
 
     // Set up logging of output messages for user debugging
@@ -102,6 +130,12 @@ int main(int argc, char *argv[])
     // full path to debug.log file
     logFilePath = logFilePath + QDir::separator() + QString("debug.log"); 
 
+    /******************  code to reset openGL version .. keep around in case need again
+    QSurfaceFormat glFormat;
+    glFormat.setVersion(3, 3);
+    glFormat.setProfile(QSurfaceFormat::CoreProfile);
+    QSurfaceFormat::setDefaultFormat(glFormat);
+    ***********************************************************************************/
 
     //
     // window scaling
@@ -115,6 +149,11 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
 
+    // https://doc.qt.io/qt-5/qtwebengine-overview.html
+    // QtWebEngine::initialize();
+    // QQmlApplicationEngine engine;
+    // engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+
     //  check if the app is run in Qt Creator
     QByteArray envVar = qgetenv("QTDIR"); 
 
@@ -127,29 +166,22 @@ int main(int argc, char *argv[])
 
 
 
-    /******************  code to reset openGL version .. keep around in case need again
-    QSurfaceFormat glFormat;
-    glFormat.setVersion(3, 3);
-    glFormat.setProfile(QSurfaceFormat::CoreProfile);
-    QSurfaceFormat::setDefaultFormat(glFormat);
-    ***********************************************************************************/
-
     // regular Qt startup
     // QApplication a(argc, argv);
 
     // create a remote interface
     QString tenant("designsafe"); // this is the default tenant for the design safe community
     QString storage("agave://designsafe.storage.default/"); // this is the default storage system for the design safe community
-    QString dirName("Hydro-UQ"); // this is the default directory for the application
+    QString dirName("HydroUQ"); // this is the default directory for the application
     AgaveCurl *theRemoteService = new AgaveCurl(tenant, storage, &dirName); // this is the remote service used by the application
 
 
     // create the main window
     WorkflowAppWidget *theInputApp = new WorkflowAppHydroUQ(theRemoteService);
-    MainWindowWorkflowApp w(QString("Hydro-UQ: Response during water wave loading"), theInputApp, theRemoteService);
+    MainWindowWorkflowApp w(QString("HydroUQ: Water-borne Hazards Engineering with Uncertainty Quantification"), theInputApp, theRemoteService);
 
     // About the application
-    QString aboutTitle = "About the SimCenter Hydro-UQ Application"; // this is the title displayed in the on About dialog
+    QString aboutTitle = "About the SimCenter HydroUQ Application"; // this is the title displayed in the on About dialog
     QString aboutSource = ":/resources/docs/textAboutHydroUQ.html";  // this is an HTML file stored under resources
     w.setAbout(aboutTitle, aboutSource);
 
@@ -158,11 +190,11 @@ int main(int argc, char *argv[])
     w.setVersion(version);
 
     // Citation
-    QString citeText("1) Frank McKenna, Justin Bonus, Ajay B Harish, & Nicolette Lewis. (2024). NHERI-SimCenter/HydroUQ: Version 3.1.0 (v3.1.0). Zenodo. https://doi.org/10.5281/zenodo.10902090 \n\n 2) Deierlein GG, McKenna F, Zsarnóczay A, Kijewski-Correa T, Kareem A, Elhaddad W, Lowes L, Schoettler MJ and Govindjee S (2020) A Cloud-Enabled Application Framework for Simulating Regional-Scale Impacts of Natural Hazards on the Built Environment. Front. Built Environ. 6:558706. doi: 10.3389/fbuil.2020.558706");
+    QString citeText("1) Frank McKenna, Justin Bonus, Ajay B Harish, & Nicolette Lewis. (2024). NHERI-SimCenter/HydroUQ: Version 3.2.0 (v3.2.0). Zenodo. https://doi.org/10.5281/zenodo.10902090 \n\n2) Gregory G. Deierlein, Frank McKenna, Adam Zsarnóczay, Tracy Kijewski-Correa, Ahsan Kareem, Wael Elhaddad, Laura Lowes, Matthew J. Schoettler, and Sanjay Govindjee (2020) A Cloud-Enabled Application Framework for Simulating Regional-Scale Impacts of Natural Hazards on the Built Environment. Frontiers in the Built Environment. 6:558706. doi: 10.3389/fbuil.2020.558706");
     w.setCite(citeText);
 
     // Link to repository
-    QString manualURL("https://nheri-simcenter.github.io/HydroUQ/");
+    QString manualURL("https://nheri-simcenter.github.io/Hydro-Documentation/");
     w.setDocumentationURL(manualURL);
 
     // Link to message board
@@ -181,16 +213,36 @@ int main(int argc, char *argv[])
     w.show();
     w.statusBar()->showMessage("Ready", 5000);
 
+
 #ifdef Q_OS_WIN
+#define STYLESHEET ":/styleCommon/stylesheetWIN.qss"
     QFile file(":/styleCommon/stylesheetWIN.qss");
 #endif
 
 #ifdef Q_OS_MACOS
+#define STYLESHEET ":/styleCommon/stylesheetMAC.qss"
     QFile file(":/styleCommon/stylesheetMAC.qss");
 #endif
 
 #ifdef Q_OS_LINUX
-    QFile file(":/styleCommon/stylesheetMAC.qss");
+#define STYLESHEET ":/styleCommon/stylesheetLinux.qss"
+    // QFile file(":/styleCommon/stylesheetMAC.qss");
+    QFile file(":/styleCommon/stylesheetLinux.qss");
+#endif
+
+#ifdef Q_OS_UNIX
+#ifndef Q_OS_LINUX
+#ifndef Q_OS_MACOS
+#define STYLESHEET ":/styleCommon/stylesheetLinux.qss"
+    // QFile file(":/styleCommon/stylesheetMAC.qss");
+    QFile file(":/styleCommon/stylesheetLinux.qss");
+#endif
+#endif
+#endif
+
+#ifndef STYLESHEET
+#define STYLESHEET ":/styleCommon/stylesheetLinux.qss"
+    QFile file(":/styleCommon/stylesheetLinux.qss");
 #endif
 
 
@@ -202,12 +254,10 @@ int main(int argc, char *argv[])
         qDebug() << "could not open stylesheet";
     }
 
-    /* *****************************************************************
+    /* ***************************************************************** 
     //Setting Google Analytics Tracking Information
     GoogleAnalytics::SetMeasurementId("G-MC7SGPGWVQ");
     GoogleAnalytics::SetAPISecret("LrEiuSuaSqeh_v1928odog");
-    GoogleAnalytics::SetMeasurementId("G-SQHRGYDZ0H");
-    GoogleAnalytics::SetAPISecret("SCg4ry-WRee780Oen2WBUA");
     GoogleAnalytics::CreateSessionId();
     GoogleAnalytics::StartSession();
 
